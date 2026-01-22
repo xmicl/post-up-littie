@@ -5,64 +5,66 @@
   <title>내가 아는 모든 귀요미들</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
- <style>
-  body {
-    font-family: Arial, sans-serif;
-    background-color: #FFF8E7; /* 바깥 배경 아이보리색 */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh; /* 화면 전체 높이 */
-    margin: 0;
-    color: black; /* 기본 글씨 검정 */
-  }
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #FFF8E7; /* 아이보리 배경 */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
 
-  .circle-container {
-    width: 80vw;
-    height: 80vh;
-    background: white; /* 안쪽은 흰색 */
-    border: 5px solid #FFF8E7; /* 테두리도 아이보리색 */
-    border-radius: 50% / 45%; /* 약간 타원형 */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    padding: 20px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.2);
-  }
+    .circle-container {
+      width: 80vw;
+      height: 80vh;
+      background: white;
+      border: 5px solid #FFF8E7;
+      border-radius: 50% / 45%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 20px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+      position: relative; /* 내부에 떠다니는 이미지 배치 */
+      overflow: hidden;
+    }
 
-  h1 { 
-    color: #4B2E2E; /* 짙은 갈색 */
-  }
+    h1 { color: #4B2E2E; }
 
-  img {
-    max-width: 70%;
-    height: auto;
-    border-radius: 10px;
-    margin-top: 10px;
-  }
+    .floating {
+      position: absolute;
+      width: 120px;
+      height: auto;
+      animation: float 6s infinite ease-in-out;
+    }
 
-  .action-area { margin-top: 20px; }
+    @keyframes float {
+      0%   { transform: translateY(0px); }
+      50%  { transform: translateY(-30px); }
+      100% { transform: translateY(0px); }
+    }
 
-  button {
-    padding: 12px 20px;
-    font-size: 1em;
-    border: none;
-    border-radius: 8px;
-    background-color: #3498db;
-    color: white;
-    cursor: pointer;
-  }
-
-  button:hover { background-color: #2980b9; }
-
-  #message {
-    font-size: 1.2em;
-    color: #2c3e50;
-    display: none;
-  }
-</style>
+    .action-area { margin-top: 20px; }
+    button {
+      padding: 12px 20px;
+      font-size: 1em;
+      border: none;
+      border-radius: 8px;
+      background-color: #3498db;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover { background-color: #2980b9; }
+    #message {
+      font-size: 1.2em;
+      color: #2c3e50;
+      display: none;
+    }
+  </style>
 </head>
 
 <body>
@@ -70,25 +72,36 @@
     <h1>내가 아는 모든 귀요미들</h1>
     <p>귀여운 애들은 같이 보자</p>
 
-    <img id="previewImage" src="image/IMG_7591.jpg" alt="미리보기 사진">
-
     <div class="action-area">
-      <button id="changeBtn" onclick="changeImage()">눌러보세요</button>
+      <button id="changeBtn" onclick="showDogs()">눌러보세요</button>
       <p id="message">귀 엽 다</p>
     </div>
   </div>
 
   <script>
-    function changeImage() {
-      const img = document.getElementById("previewImage");
+    function showDogs() {
       const btn = document.getElementById("changeBtn");
       const msg = document.getElementById("message");
+      const container = document.querySelector(".circle-container");
 
-      img.src = "image/image_625325687.jpg";
-      img.alt = "버튼 클릭 후 사진";
-
+      // 버튼 숨기고 메시지 표시
       btn.style.display = "none";
       msg.style.display = "block";
+
+      // 이미지 파일 목록
+      const images = ["image/댕댕.png", "image/아지.png", "image/뽀또.png"];
+
+      images.forEach((src, index) => {
+        const img = document.createElement("img");
+        img.src = src;
+        img.className = "floating";
+        // 위치를 랜덤하게 배치
+        img.style.top = Math.random() * 60 + "%";
+        img.style.left = Math.random() * 60 + "%";
+        // 애니메이션 속도 약간 다르게
+        img.style.animationDuration = (5 + index) + "s";
+        container.appendChild(img);
+      });
     }
 
     // 🎉 이스터 에그 (코나미 코드)
@@ -100,15 +113,9 @@
       if (input.length > secretCode.length) input.shift();
 
       if (JSON.stringify(input) === JSON.stringify(secretCode)) {
-        alert("이스터 에그 발견! 🎉");
+        alert("https://www.instagram.com/littlelittti ! 🎉");
       }
     });
   </script>
 </body>
 </html>
-
-
-
-
-
-
