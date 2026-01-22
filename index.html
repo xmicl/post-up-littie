@@ -17,11 +17,11 @@
     }
 
     .circle-container {
-      width: 80vw;
-      height: 80vh;
+      width: 60vw;   /* 가로 크기 조정 */
+      height: 80vh;  /* 세로 크기 크게 */
       background: white;
       border: 5px solid #FFF8E7;
-      border-radius: 50% / 45%;
+      border-radius: 40% / 60%; /* 세로형 타원 */
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -87,9 +87,8 @@
       const msg = document.getElementById("message");
       const container = document.querySelector(".circle-container");
 
-      // 버튼 숨기고 메시지 표시
-      btn.style.display = "none";
-      msg.style.display = "block";
+      // 모든 텍스트 숨기기
+      document.querySelectorAll("h1, p").forEach(el => el.style.display = "none");
 
       // 원 안쪽 배경을 리띠.jpg로 변경
       container.style.backgroundImage = "url('imag/리띠.jpg')";
@@ -135,4 +134,3 @@
   </script>
 </body>
 </html>
-
