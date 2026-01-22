@@ -28,6 +28,7 @@
       border-radius: 40% / 60%;
       display: flex;
       flex-direction: column;
+      justify-content: center;
       align-items: center;
       text-align: center;
       padding: 20px;
@@ -55,7 +56,6 @@
       touch-action: none;
     }
 
-    /* 애니메이션 */
     @keyframes floatY {
       0% { transform: translateY(0); }
       50% { transform: translateY(-30px); }
@@ -72,8 +72,8 @@
       100% { transform: rotate(0deg); }
     }
     @keyframes floatOrbit {
-      0% { transform: rotate(0deg) translateX(15px) rotate(0deg); }
-      50% { transform: rotate(180deg) translateX(15px) rotate(-180deg); }
+      0%   { transform: rotate(0deg) translateX(15px) rotate(0deg); }
+      50%  { transform: rotate(180deg) translateX(15px) rotate(-180deg); }
       100% { transform: rotate(360deg) translateX(15px) rotate(-360deg); }
     }
     @keyframes floatBounce {
@@ -83,13 +83,17 @@
 
     #changeBtn {
       padding: 12px 20px;
+      font-size: 1em;
       border: none;
       border-radius: 8px;
       background-color: #E6D8B8;
       color: #4B2E2E;
       cursor: pointer;
+      position: relative;
       transition: all 0.4s ease;
     }
+
+    #changeBtn:hover { background-color: #DCCCA6; }
 
     .move-top {
       position: absolute;
@@ -103,7 +107,7 @@
 
 <body>
   <div class="circle-container">
-    <h1><span class="mobile-break">내가 아는 모든</span> 귀요미들</h1>
+    <h1 id="title"><span class="mobile-break">내가 아는 모든</span> 귀요미들</h1>
     <p id="subtitle">귀여운 애들은 같이 보자</p>
 
     <button id="changeBtn" onclick="showDogs()">눌러보세요</button>
@@ -114,17 +118,18 @@
       const container = document.querySelector(".circle-container");
       const btn = document.getElementById("changeBtn");
 
-      // 문구만 숨김
+      // 제목 + 문구 숨기기
+      document.getElementById("title").style.display = "none";
       document.getElementById("subtitle").style.display = "none";
 
       // 배경 변경
       container.style.backgroundImage = "url('imag/리띠.jpg')";
 
-      // 버튼을 타원 안 맨 위로
+      // 버튼을 타원 안 맨 위로 이동
       btn.classList.add("move-top");
 
       const images = ["imag/댕댕.png", "imag/아지.png", "imag/뽀또.png"];
-      const animations = ["floatY","floatX","floatRotate","floatOrbit","floatBounce"];
+      const animations = ["floatY", "floatX", "floatRotate", "floatOrbit", "floatBounce"];
 
       images.forEach(src => {
         const img = document.createElement("img");
