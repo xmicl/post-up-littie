@@ -5,7 +5,6 @@
   <title>내가 아는 모든 귀요미들</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- SNS 공유용 썸네일 지정 -->
   <meta property="og:image" content="imag/귀.jpg">
   <meta property="og:title" content="내가 아는 모든 귀요미들">
   <meta property="og:description" content="귀여운 애들은 같이 보자">
@@ -29,7 +28,6 @@
       border-radius: 40% / 60%;
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
       text-align: center;
       padding: 20px;
@@ -53,56 +51,45 @@
     .floating {
       position: absolute;
       width: 180px;
-      height: auto;
       cursor: grab;
       touch-action: none;
     }
 
-    /* 애니메이션들 */
+    /* 애니메이션 */
     @keyframes floatY {
       0% { transform: translateY(0); }
       50% { transform: translateY(-30px); }
       100% { transform: translateY(0); }
     }
-
     @keyframes floatX {
       0% { transform: translateX(0); }
       50% { transform: translateX(30px); }
       100% { transform: translateX(0); }
     }
-
     @keyframes floatRotate {
       0% { transform: rotate(0deg); }
       50% { transform: rotate(8deg); }
       100% { transform: rotate(0deg); }
     }
-
     @keyframes floatOrbit {
-      0%   { transform: rotate(0deg) translateX(15px) rotate(0deg); }
-      50%  { transform: rotate(180deg) translateX(15px) rotate(-180deg); }
+      0% { transform: rotate(0deg) translateX(15px) rotate(0deg); }
+      50% { transform: rotate(180deg) translateX(15px) rotate(-180deg); }
       100% { transform: rotate(360deg) translateX(15px) rotate(-360deg); }
     }
-
     @keyframes floatBounce {
       0%,100% { transform: translateY(0) scale(1); }
       50% { transform: translateY(-20px) scale(1.05); }
     }
 
-    .action-area { margin-top: 20px; }
-
     #changeBtn {
       padding: 12px 20px;
-      font-size: 1em;
       border: none;
       border-radius: 8px;
       background-color: #E6D8B8;
       color: #4B2E2E;
       cursor: pointer;
-      position: relative;
       transition: all 0.4s ease;
     }
-
-    #changeBtn:hover { background-color: #DCCCA6; }
 
     .move-top {
       position: absolute;
@@ -117,11 +104,9 @@
 <body>
   <div class="circle-container">
     <h1><span class="mobile-break">내가 아는 모든</span> 귀요미들</h1>
-    <p>귀여운 애들은 같이 보자</p>
+    <p id="subtitle">귀여운 애들은 같이 보자</p>
 
-    <div class="action-area">
-      <button id="changeBtn" onclick="showDogs()">눌러보세요</button>
-    </div>
+    <button id="changeBtn" onclick="showDogs()">눌러보세요</button>
   </div>
 
   <script>
@@ -129,21 +114,17 @@
       const container = document.querySelector(".circle-container");
       const btn = document.getElementById("changeBtn");
 
-      document.querySelectorAll("h1, p").forEach(el => el.style.display = "none");
+      // 문구만 숨김
+      document.getElementById("subtitle").style.display = "none";
 
+      // 배경 변경
       container.style.backgroundImage = "url('imag/리띠.jpg')";
 
+      // 버튼을 타원 안 맨 위로
       btn.classList.add("move-top");
-      btn.style.display = "block";
 
       const images = ["imag/댕댕.png", "imag/아지.png", "imag/뽀또.png"];
-      const animations = [
-        "floatY",
-        "floatX",
-        "floatRotate",
-        "floatOrbit",
-        "floatBounce"
-      ];
+      const animations = ["floatY","floatX","floatRotate","floatOrbit","floatBounce"];
 
       images.forEach(src => {
         const img = document.createElement("img");
@@ -155,46 +136,6 @@
 
         const ani = animations[Math.floor(Math.random() * animations.length)];
         img.style.animation = `${ani} ${4 + Math.random() * 4}s infinite ease-in-out`;
-
-        // PC 드래그
-        img.onmousedown = function(e) {
-          e.preventDefault();
-          let shiftX = e.clientX - img.getBoundingClientRect().left;
-          let shiftY = e.clientY - img.getBoundingClientRect().top;
-
-          function moveAt(pageX, pageY) {
-            img.style.left = pageX - container.offsetLeft - shiftX + "px";
-            img.style.top = pageY - container.offsetTop - shiftY + "px";
-          }
-
-          function onMouseMove(e) { moveAt(e.pageX, e.pageY); }
-          document.addEventListener('mousemove', onMouseMove);
-
-          img.onmouseup = function() {
-            document.removeEventListener('mousemove', onMouseMove);
-            img.onmouseup = null;
-          };
-        };
-
-        // 모바일 터치 드래그
-        img.ontouchstart = function(e) {
-          let touch = e.touches[0];
-          let shiftX = touch.clientX - img.getBoundingClientRect().left;
-          let shiftY = touch.clientY - img.getBoundingClientRect().top;
-
-          function moveAt(t) {
-            img.style.left = t.clientX - container.offsetLeft - shiftX + "px";
-            img.style.top = t.clientY - container.offsetTop - shiftY + "px";
-          }
-
-          function onTouchMove(e) { moveAt(e.touches[0]); }
-          document.addEventListener('touchmove', onTouchMove, { passive: false });
-
-          img.ontouchend = function() {
-            document.removeEventListener('touchmove', onTouchMove);
-            img.ontouchend = null;
-          };
-        };
 
         img.ondragstart = () => false;
         container.appendChild(img);
