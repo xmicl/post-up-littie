@@ -103,6 +103,21 @@
       transform: translateX(-50%);
       z-index: 10;
     }
+
+    /* 툴팁 스타일 (노란 계열) */
+    .tooltip {
+      position: absolute;
+      background: rgba(255, 223, 128, 0.95); /* 따뜻한 노란빛 */
+      color: #4B2E2E;                        /* 글씨는 갈색 톤 */
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 0.9em;
+      pointer-events: none;
+      white-space: nowrap;
+      z-index: 20;
+      display: none;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2); /* 살짝 그림자 */
+    }
   </style>
 </head>
 
@@ -128,12 +143,21 @@
       // 버튼 위로 이동
       btn.classList.add("move-top");
 
-      const images = ["imag/댕댕.png","imag/아지.png","imag/뽀또.png"];
+      // 툴팁 요소 추가
+      const tooltip = document.createElement("div");
+      tooltip.className = "tooltip";
+      container.appendChild(tooltip);
+
+      const images = [
+        {src: "imag/댕댕.png", info: "댕댕이는 활발하고 장난꾸러기"},
+        {src: "imag/아지.png", info: "아지는 온순하고 착한 친구"},
+        {src: "imag/뽀또.png", info: "뽀또는 작고 귀여운 애교쟁이"}
+      ];
       const animations = ["floatY","floatX","floatRotate","floatOrbit","floatBounce"];
 
-      images.forEach(src => {
+      images.forEach(item => {
         const img = document.createElement("img");
-        img.src = src;
+        img.src = item.src;
         img.className = "floating";
 
         // 화면 안 랜덤 위치
@@ -146,7 +170,20 @@
         const ani = animations[Math.floor(Math.random() * animations.length)];
         img.style.animation = `${ani} ${4 + Math.random()*4}s infinite ease-in-out`;
 
-        // PC 드래그
+        // 툴팁 이벤트
+        img.addEventListener("mouseenter", () => {
+          tooltip.textContent = item.info;
+          tooltip.style.display = "block";
+        });
+        img.addEventListener("mousemove", (e) => {
+          tooltip.style.left = e.pageX + 10 + "px";
+          tooltip.style.top = e.pageY + 10 + "px";
+        });
+        img.addEventListener("mouseleave", () => {
+          tooltip.style.display = "none";
+        });
+
+        // 드래그 기능 (PC)
         img.onmousedown = function(e) {
           e.preventDefault();
           let shiftX = e.clientX - img.getBoundingClientRect().left;
