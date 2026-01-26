@@ -49,59 +49,17 @@
       }
     }
 
-    .floating {
+    @keyframes flash {
+      0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      50% { opacity: 0.2; transform: translate(-50%, -50%) scale(1.2); }
+      100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    }
+
+    /* 숨겨진 입력창 */
+    #secretInput {
+      opacity: 0;
       position: absolute;
-      width: 180px;
-      cursor: grab;
-      touch-action: none;
-    }
-
-    @keyframes floatY {
-      0% { transform: translateY(0); }
-      50% { transform: translateY(-30px); }
-      100% { transform: translateY(0); }
-    }
-    @keyframes floatX {
-      0% { transform: translateX(0); }
-      50% { transform: translateX(30px); }
-      100% { transform: translateX(0); }
-    }
-    @keyframes floatRotate {
-      0% { transform: rotate(0deg); }
-      50% { transform: rotate(8deg); }
-      100% { transform: rotate(0deg); }
-    }
-    @keyframes floatOrbit {
-      0%   { transform: rotate(0deg) translateX(15px) rotate(0deg); }
-      50%  { transform: rotate(180deg) translateX(15px) rotate(-180deg); }
-      100% { transform: rotate(360deg) translateX(15px) rotate(-360deg); }
-    }
-    @keyframes floatBounce {
-      0%,100% { transform: translateY(0) scale(1); }
-      50% { transform: translateY(-20px) scale(1.05); }
-    }
-
-    #changeBtn {
-      padding: 12px 20px;
-      font-size: 1em;
-      border: none;
-      border-radius: 8px;
-      background-color: #E6D8B8;
-      color: #4B2E2E;
-      cursor: pointer;
-      transition: all 0.4s ease;
-    }
-
-    #changeBtn:hover {
-      background-color: #DCCCA6;
-    }
-
-    .move-top {
-      position: absolute;
-      top: 12px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 10;
+      top: -100px;
     }
   </style>
 </head>
@@ -110,87 +68,94 @@
   <div class="circle-container">
     <h1 id="title"><span class="mobile-break">내가 아는 모든</span> 귀요미들</h1>
     <p id="subtitle">귀여운 애들은 같이 보자</p>
-    <button id="changeBtn" onclick="showDogs()">눌러보세요</button>
+    <p>👉 치트 코드(리띠, 아지, 댕댕, 뽀또) 입력 시 게임 시작!</p>
   </div>
 
+  <!-- 숨겨진 입력창 -->
+  <input type="text" id="secretInput">
+
   <script>
-    function showDogs() {
+    let score = 0;
+
+    // 메시지 번쩍 효과
+    function flashMessage(text) {
       const container = document.querySelector(".circle-container");
-      const btn = document.getElementById("changeBtn");
+      const msg = document.createElement("div");
+      msg.textContent = text;
+      msg.style.position = "absolute";
+      msg.style.top = "50%";
+      msg.style.left = "50%";
+      msg.style.transform = "translate(-50%, -50%)";
+      msg.style.fontSize = "3em";
+      msg.style.fontWeight = "bold";
+      msg.style.color = "#FF4444";
+      msg.style.textShadow = "0 0 20px #FFD700";
+      msg.style.zIndex = "999";
+      msg.style.animation = "flash 1s ease-in-out 3";
 
-      // 제목 + 문구 숨기기
-      document.getElementById("title").style.display = "none";
-      document.getElementById("subtitle").style.display = "none";
+      container.appendChild(msg);
+      setTimeout(() => msg.remove(), 3000);
+    }
 
-      // 배경 변경
-      container.style.backgroundImage = "url('imag/리띠.jpg')";
+    // 게임 시작 함수
+    function startGame() {
+      const container = document.querySelector(".circle-container");
+      container.innerHTML = `<p>점수: <span id="score">0</span></p>`;
+      flashMessage("게임 시작!");
+      score = 0;
 
-      // 버튼 위로 이동
-      btn.classList.add("move-top");
-
-      const images = ["imag/댕댕.png","imag/아지.png","imag/뽀또.png"];
-      const animations = ["floatY","floatX","floatRotate","floatOrbit","floatBounce"];
-
+      const images = ["imag/리띠.jpg","imag/아지.png","imag/댕댕.png","imag/뽀또.png"];
       images.forEach(src => {
         const img = document.createElement("img");
         img.src = src;
-        img.className = "floating";
+        img.style.position = "absolute";
+        img.style.width = "100px"; // 모바일 대응: 조금 더 작게
+        moveRandom(img, container);
 
-        // 화면 안 랜덤 위치
-        const maxX = container.clientWidth - 180;
-        const maxY = container.clientHeight - 180;
-        img.style.left = Math.random() * maxX + "px";
-        img.style.top = Math.random() * maxY + "px";
-
-        // 랜덤 애니메이션
-        const ani = animations[Math.floor(Math.random() * animations.length)];
-        img.style.animation = `${ani} ${4 + Math.random()*4}s infinite ease-in-out`;
-
-        // PC 드래그
-        img.onmousedown = function(e) {
-          e.preventDefault();
-          let shiftX = e.clientX - img.getBoundingClientRect().left;
-          let shiftY = e.clientY - img.getBoundingClientRect().top;
-
-          function moveAt(pageX, pageY) {
-            img.style.left = pageX - container.getBoundingClientRect().left - shiftX + "px";
-            img.style.top = pageY - container.getBoundingClientRect().top - shiftY + "px";
+        img.onclick = () => {
+          score++;
+          document.getElementById("score").textContent = score;
+          if(score >= 10) {
+            alert("🎉 귀요미 마스터!");
           }
-
-          function onMouseMove(e) { moveAt(e.pageX, e.pageY); }
-          document.addEventListener("mousemove", onMouseMove);
-
-          img.onmouseup = function() {
-            document.removeEventListener("mousemove", onMouseMove);
-            img.onmouseup = null;
-          };
         };
-
-        // 모바일 터치 드래그
-        img.ontouchstart = function(e) {
-          let touch = e.touches[0];
-          let shiftX = touch.clientX - img.getBoundingClientRect().left;
-          let shiftY = touch.clientY - img.getBoundingClientRect().top;
-
-          function moveAt(t) {
-            img.style.left = t.clientX - container.getBoundingClientRect().left - shiftX + "px";
-            img.style.top = t.clientY - container.getBoundingClientRect().top - shiftY + "px";
-          }
-
-          function onTouchMove(e) { moveAt(e.touches[0]); }
-          document.addEventListener("touchmove", onTouchMove, { passive: false });
-
-          img.ontouchend = function() {
-            document.removeEventListener("touchmove", onTouchMove);
-            img.ontouchend = null;
-          };
-        };
-
-        img.ondragstart = () => false;
 
         container.appendChild(img);
       });
     }
+
+    // 랜덤 이동 (빠른 속도)
+    function moveRandom(img, container) {
+      setInterval(() => {
+        const maxX = container.clientWidth - 100;
+        const maxY = container.clientHeight - 100;
+        img.style.left = Math.random() * maxX + "px";
+        img.style.top = Math.random() * maxY + "px";
+      }, 200); // 0.2초마다 위치 변경
+    }
+
+    // 치트 코드 입력 감지 (입력창 기반)
+    const secretInput = document.getElementById("secretInput");
+    secretInput.addEventListener("input", () => {
+      const value = secretInput.value;
+      if(
+        value.includes("리띠") ||
+        value.includes("아지") ||
+        value.includes("댕댕") ||
+        value.includes("뽀또")
+      ) {
+        startGame();
+        secretInput.value = "";
+      }
+    });
+
+    // 원 밖 클릭 시 입력창 활성화 → 모바일 키보드 뜸
+    document.addEventListener("click", (e) => {
+      const container = document.querySelector(".circle-container");
+      if (!container.contains(e.target)) {
+        secretInput.focus();
+      }
+    });
   </script>
 </body>
 </html>
