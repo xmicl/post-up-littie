@@ -88,26 +88,29 @@
   </div>
 
   <script>
-    let buttonClickCount = 0;
-    let outsideTouchCount = 0;
-    let input = "";
-    let gameEnded = false; // 게임 종료 상태 체크
+    const gameState = {
+      clicks: 0,
+      score: 0,
+      ended: false,
+      touches: 0,
+      input: ""
+    };
 
-    // 원본 게임
+    const images = ["imag/댕댕.png","imag/아지.png","imag/뽀또.png"];
+    const animations = ["floatY","floatX","floatRotate","floatOrbit","floatBounce"];
+
+    // 이미지 추가
     function showDogs() {
-      buttonClickCount++;
+      gameState.clicks++;
       const container = document.querySelector(".circle-container");
       const btn = document.getElementById("changeBtn");
 
-      document.getElementById("title").style.display = "none";
-      document.getElementById("subtitle").style.display = "none";
+      document.getElementById("title").classList.add("hidden");
+      document.getElementById("subtitle").classList.add("hidden");
       container.style.backgroundImage = "url('imag/리띠.jpg')";
       btn.classList.add("move-top");
 
-      const images = ["imag/댕댕.png","imag/아지.png","imag/뽀또.png"];
-      const animations = ["floatY","floatX","floatRotate","floatOrbit","floatBounce"];
-
-      for (let i = 0; i < buttonClickCount; i++) {
+      for (let i = 0; i < gameState.clicks; i++) {
         images.forEach(src => {
           const img = document.createElement("img");
           img.src = src;
@@ -121,53 +124,48 @@
           const ani = animations[Math.floor(Math.random() * animations.length)];
           img.style.animation = `${ani} ${4 + Math.random()*4}s infinite ease-in-out`;
 
-          // PC 드래그
-          img.onmousedown = function(e) {
+          // pointer 이벤트로 PC/모바일 통합 드래그
+          img.addEventListener("pointerdown", e => {
             e.preventDefault();
-            let shiftX = e.clientX - img.getBoundingClientRect().left;
-            let shiftY = e.clientY - img.getBoundingClientRect().top;
-            function moveAt(pageX, pageY) {
-              img.style.left = pageX - container.getBoundingClientRect().left - shiftX + "px";
-              img.style.top = pageY - container.getBoundingClientRect().top - shiftY + "px";
-            }
-            function onMouseMove(e) { moveAt(e.pageX, e.pageY); }
-            document.addEventListener("mousemove", onMouseMove);
-            img.onmouseup = function() {
-              document.removeEventListener("mousemove", onMouseMove);
-              img.onmouseup = null;
-            };
-          };
+            const shiftX = e.clientX - img.getBoundingClientRect().left;
+            const shiftY = e.clientY - img.getBoundingClientRect().top;
 
-          // 모바일 터치 드래그
-          img.ontouchstart = function(e) {
-            let touch = e.touches[0];
-            let shiftX = touch.clientX - img.getBoundingClientRect().left;
-            let shiftY = touch.clientY - img.getBoundingClientRect().top;
-            function moveAt(t) {
-              img.style.left = t.clientX - container.getBoundingClientRect().left - shiftX + "px";
-              img.style.top = t.clientY - container.getBoundingClientRect().top - shiftY + "px";
+            function moveAt(ev) {
+              img.style.left = ev.clientX - container.getBoundingClientRect().left - shiftX + "px";
+              img.style.top = ev.clientY - container.getBoundingClientRect().top - shiftY + "px";
             }
-            function onTouchMove(e) { moveAt(e.touches[0]); }
-            document.addEventListener("touchmove", onTouchMove, { passive: false });
-            img.ontouchend = function() {
-              document.removeEventListener("touchmove", onTouchMove);
-              img.ontouchend = null;
-            };
-          };
+
+            function onMove(ev) { moveAt(ev); }
+            document.addEventListener("pointermove", onMove);
+            document.addEventListener("pointerup", () => {
+              document.removeEventListener("pointermove", onMove);
+            }, { once: true });
+          });
 
           img.ondragstart = () => false;
           container.appendChild(img);
         });
       }
     }
-        // 치트 코드 입력 감지
-    document.addEventListener("keydown", (e) => {
-      input += e.key;
-      if (input.includes("리띠") || input.includes("아지") || input.includes("댕댕") || input.includes("뽀또")) {
+
+    // 치트 코드 입력 감지 (input 요소 활용)
+    const cheatInput = document.createElement("input");
+    cheatInput.type = "text";
+    cheatInput.id = "cheatInput";
+    cheatInput.style.opacity = "0";
+    cheatInput.style.position = "absolute";
+    cheatInput.style.left = "-9999px";
+    document.body.appendChild(cheatInput);
+
+    cheatInput.addEventListener("input", () => {
+      const val = cheatInput.value;
+      if (val.includes("리띠") || val.includes("아지") || val.includes("댕댕") || val.includes("뽀또")) {
         startCheatGame();
-        input = "";
+        cheatInput.value = "";
       }
-      if (input.length > 30) input = input.slice(-30);
+    });
+
+    document.addEventListener("keydown", (e) => {
       if (e.key === "Escape") goToFirstPage();
     });
 
@@ -176,12 +174,11 @@
       const container = document.querySelector(".circle-container");
       container.innerHTML = `<p>점수: <span id="score">0</span></p>`;
       flashMessage("치트 게임 시작!");
-      let score = 0;
-      gameEnded = false;
+      gameState.score = 0;
+      gameState.ended = false;
 
-      const movingImages = ["imag/댕댕.png","imag/아지.png","imag/뽀또.png"];
-      for (let i = 0; i < buttonClickCount; i++) {
-        movingImages.forEach(src => {
+      for (let i = 0; i < gameState.clicks; i++) {
+        images.forEach(src => {
           const img = document.createElement("img");
           img.src = src;
           img.className = "floating";
@@ -192,9 +189,9 @@
           img.style.animation = `floatY ${4 + Math.random()*4}s infinite ease-in-out`;
 
           img.onclick = () => {
-            score++;
-            document.getElementById("score").textContent = score;
-            if(score >= 10) alert("🎉 귀요미 마스터!");
+            gameState.score++;
+            document.getElementById("score").textContent = gameState.score;
+            if(gameState.score >= 10) flashMessage("🎉 귀요미 마스터!");
           };
 
           container.appendChild(img);
@@ -208,13 +205,13 @@
       litti.style.left = "50%";
       litti.style.top = "50%";
       litti.style.transform = "translate(-50%, -50%)";
-      litti.style.animation = "none"; // 움직이지 않음
+      litti.style.animation = "none";
 
       litti.onclick = () => {
         flashMessage("탈락!");
         setTimeout(() => {
           container.innerHTML = "<p>게임 종료</p>";
-          gameEnded = true;
+          gameState.ended = true;
         }, 1000);
       };
 
@@ -239,42 +236,32 @@
         <p id="subtitle">귀여운 애들은 같이 보자</p>
         <button id="changeBtn" onclick="showDogs()">눌러보세요</button>
       `;
-      buttonClickCount = 0;
-      gameEnded = false;
+      gameState.clicks = 0;
+      gameState.ended = false;
+      gameState.score = 0;
     }
 
-   // 모바일: 원 밖 터치 규칙 (숨겨진 입력 박스 포커스)
-document.addEventListener("touchstart", (e) => {
-  const container = document.querySelector(".circle-container");
-  if (!container.contains(e.target)) {
-    if (gameEnded) {
-      // 게임 종료 후 → 두 번 터치해야 복귀
-      outsideTouchCount++;
-      if (outsideTouchCount >= 2) {
-        goToFirstPage();
-        outsideTouchCount = 0;
+    // 모바일: 원 밖 터치 규칙
+    document.addEventListener("touchstart", (e) => {
+      const container = document.querySelector(".circle-container");
+      if (!container.contains(e.target)) {
+        if (gameState.ended) {
+          gameState.touches++;
+          if (gameState.touches >= 2) {
+            goToFirstPage();
+            gameState.touches = 0;
+          }
+        } else {
+          cheatInput.focus(); // 숨겨진 input 재사용
+        }
+      } else {
+        gameState.touches = 0;
       }
-    } else {
-      // 게임 중 → 원 밖 한 번 터치 시 숨겨진 입력 박스 생성 + 포커스
-      let hiddenInput = document.getElementById("hiddenInput");
-      if (!hiddenInput) {
-        hiddenInput = document.createElement("input");
-        hiddenInput.type = "text";
-        hiddenInput.id = "hiddenInput";
-        hiddenInput.style.opacity = "0";
-        hiddenInput.style.position = "absolute";
-        hiddenInput.style.left = "-9999px";
-        document.body.appendChild(hiddenInput);
-      }
-      hiddenInput.focus(); // 모바일 키보드 자동 호출
-    }
-  } else {
-    outsideTouchCount = 0;
-  }
-});
+    });
   </script>
 </body>
 </html>
+
 
 
 
