@@ -243,7 +243,7 @@
       gameEnded = false;
     }
 
-   // 모바일: 원 밖 터치 규칙 (입력 박스 없이 키보드만 띄우기)
+   // 모바일: 원 밖 터치 규칙 (숨겨진 입력 박스 포커스)
 document.addEventListener("touchstart", (e) => {
   const container = document.querySelector(".circle-container");
   if (!container.contains(e.target)) {
@@ -255,7 +255,7 @@ document.addEventListener("touchstart", (e) => {
         outsideTouchCount = 0;
       }
     } else {
-      // 게임 중 → 원 밖 한 번 터치 시 숨겨진 입력 요소에 포커스 → 키보드만 나타남
+      // 게임 중 → 원 밖 한 번 터치 시 숨겨진 입력 박스 생성 + 포커스
       let hiddenInput = document.getElementById("hiddenInput");
       if (!hiddenInput) {
         hiddenInput = document.createElement("input");
@@ -275,5 +275,6 @@ document.addEventListener("touchstart", (e) => {
   </script>
 </body>
 </html>
+
 
 
